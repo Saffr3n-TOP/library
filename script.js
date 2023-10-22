@@ -72,19 +72,19 @@ function populateDOM() {
   document.querySelector('p')?.remove();
 
   if (library.length) {
-    library.forEach((book) => {
+    for (let i = 0; i < library.length; i++) {
       const bookElement = document.createElement('div');
       bookElement.classList.add('book');
 
       const bookTitle = document.createElement('h2');
-      bookTitle.textContent = book.title;
+      bookTitle.textContent = library[i].title;
 
       const bookAuthorField = document.createElement('span');
       bookAuthorField.textContent = 'Author: ';
 
       const bookAuthor = document.createElement('span');
       bookAuthor.classList.add('bold');
-      bookAuthor.textContent = book.author;
+      bookAuthor.textContent = library[i].author;
       bookAuthorField.appendChild(bookAuthor);
 
       const bookPagesField = document.createElement('span');
@@ -92,28 +92,47 @@ function populateDOM() {
 
       const bookPages = document.createElement('span');
       bookPages.classList.add('bold');
-      bookPages.textContent = book.pages.toString();
+      bookPages.textContent = library[i].pages.toString();
       bookPagesField.appendChild(bookPages);
 
       const bookSeparator = document.createElement('hr');
 
       const bookIsRead = document.createElement('span');
       bookIsRead.classList.add('italic');
-      bookIsRead.style.color = book.isRead ? 'lime' : 'yellow';
+      bookIsRead.style.color = library[i].isRead ? 'lime' : 'yellow';
       bookIsRead.textContent = `You${
-        book.isRead ? "'ve" : " haven't"
-      } read this book ${book.isRead ? 'already' : 'yet'}`;
+        library[i].isRead ? "'ve" : " haven't"
+      } read this book ${library[i].isRead ? 'already' : 'yet'}`;
+
+      const markReadBtn = document.createElement('button');
+      markReadBtn.textContent = `${library[i].isRead ? 'Not' : 'Is'} read`;
+      markReadBtn.addEventListener('click', () => {
+        library[i].isRead = !library[i].isRead;
+        populateDOM();
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', () => {
+        library.splice(i, 1);
+        populateDOM();
+      });
+
+      const bookControls = document.createElement('span');
+      bookControls.classList.add('controls');
+      bookControls.append(markReadBtn, deleteBtn);
 
       bookElement.append(
         bookTitle,
         bookAuthorField,
         bookPagesField,
         bookSeparator,
-        bookIsRead
+        bookIsRead,
+        bookControls
       );
 
       libraryElement?.appendChild(bookElement);
-    });
+    }
   } else {
     const para = document.createElement('p');
     para.textContent = 'There are no books yet...';

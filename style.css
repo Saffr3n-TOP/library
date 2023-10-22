@@ -116,6 +116,25 @@ input {
   box-shadow: 2px 2px 2px 0 #444;
 }
 
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.5rem;
+}
+
+.controls button {
+  padding: 4px 8px;
+}
+
+.controls button:last-child {
+  background: crimson;
+  color: white;
+}
+
+.controls button:last-child:hover {
+  background: red;
+}
+
 .bold {
   font-weight: bold;
 }
