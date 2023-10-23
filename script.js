@@ -22,10 +22,10 @@ class Book {
    *   isRead: boolean
    * }[]}
    */
-  static _library = [];
+  static #library = [];
 
   static getLibrary() {
-    return [...Book._library];
+    return [...this.#library];
   }
 
   /**
@@ -37,7 +37,7 @@ class Book {
    * }} book
    */
   static addToLibrary(book) {
-    Book._library.push(book);
+    this.#library.push(book);
   }
 
   /**
@@ -50,12 +50,12 @@ class Book {
    * }} book
    */
   static updateInLibrary(index, book) {
-    Book._library.splice(index, 1, book);
+    this.#library.splice(index, 1, book);
   }
 
   /** @param {number} index */
   static deleteFromLibrary(index) {
-    Book._library.splice(index, 1);
+    this.#library.splice(index, 1);
   }
 }
 
