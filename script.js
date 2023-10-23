@@ -1,178 +1,226 @@
 // @ts-check
 
-/**
- * @type {{
- *   title: string,
- *   author: string,
- *   pages: number,
- *   isRead: boolean
- * }[]}
- */
-const library = [];
-
-const addBtn = document.querySelector('button');
-addBtn?.addEventListener('click', () =>
-  document.querySelector('dialog')?.showModal()
-);
-
-const dialog = document.querySelector('dialog');
-dialog?.addEventListener('click', (e) => {
-  const rect = dialog.getBoundingClientRect();
-  if (
-    e.clientX < rect.left ||
-    e.clientX > rect.right ||
-    e.clientY < rect.top ||
-    e.clientY > rect.bottom
-  ) {
-    dialog.close();
+class Book {
+  /**
+   * @param {string} title
+   * @param {string} author
+   * @param {number} pages
+   * @param {boolean} isRead
+   */
+  constructor(title, author, pages, isRead) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.isRead = isRead;
   }
-});
 
-const form = document.querySelector('form');
-form?.addEventListener('submit', () => {
-  const [title, author, pages, isRead] = form.querySelectorAll('input');
+  /**
+   * @type {{
+   *   title: string,
+   *   author: string,
+   *   pages: number,
+   *   isRead: boolean
+   * }[]}
+   */
+  static _library = [];
 
-  addToLibrary(title.value, author.value, +pages.value, isRead.checked);
-  populateDOM();
-  dialog?.close();
+  static getLibrary() {
+    return [...Book._library];
+  }
 
-  title.value = '';
-  author.value = '';
-  pages.value = '';
-  isRead.checked = false;
-});
+  /**
+   * @param {{
+   *   title: string,
+   *   author: string,
+   *   pages: number,
+   *   isRead: boolean
+   * }} book
+   */
+  static addToLibrary(book) {
+    Book._library.push(book);
+  }
 
-/**
- * @param {string} title
- * @param {string} author
- * @param {number} pages
- * @param {boolean} isRead
- */
-function Book(title, author, pages, isRead) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.isRead = isRead;
+  /**
+   * @param {number} index
+   * @param {{
+   *   title: string,
+   *   author: string,
+   *   pages: number,
+   *   isRead: boolean
+   * }} book
+   */
+  static updateInLibrary(index, book) {
+    Book._library.splice(index, 1, book);
+  }
+
+  /** @param {number} index */
+  static deleteFromLibrary(index) {
+    Book._library.splice(index, 1);
+  }
 }
 
-/**
- * @param {string} title
- * @param {string} author
- * @param {number} pages
- * @param {boolean} isRead
- */
-function addToLibrary(title, author, pages, isRead) {
-  library.push(new Book(title, author, pages, isRead));
-}
+(() => {
+  function populateDOM() {
+    /** @type {HTMLElement | null} */
+    const libraryElement = /** @type {HTMLDivElement} */ (
+      document.querySelector('.library')
+    );
 
-function populateDOM() {
-  /** @type {HTMLElement | null} */
-  const libraryElement = document.querySelector('.library');
-  if (libraryElement) libraryElement.innerHTML = '';
-  document.querySelector('p')?.remove();
+    libraryElement.innerHTML = '';
+    document.querySelector('p')?.remove();
 
-  if (library.length) {
-    for (let i = 0; i < library.length; i++) {
-      const bookElement = document.createElement('div');
-      bookElement.classList.add('book');
+    const library = Book.getLibrary();
 
-      const bookTitle = document.createElement('h2');
-      bookTitle.textContent = library[i].title;
+    if (library.length) {
+      for (let i = 0; i < library.length; i++) {
+        const bookElement = document.createElement('div');
+        bookElement.classList.add('book');
 
-      const bookAuthorField = document.createElement('span');
-      bookAuthorField.textContent = 'Author: ';
+        const bookTitle = document.createElement('h2');
+        bookTitle.textContent = library[i].title;
 
-      const bookAuthor = document.createElement('span');
-      bookAuthor.classList.add('bold');
-      bookAuthor.textContent = library[i].author;
-      bookAuthorField.appendChild(bookAuthor);
+        const bookAuthorField = document.createElement('span');
+        bookAuthorField.textContent = 'Author: ';
 
-      const bookPagesField = document.createElement('span');
-      bookPagesField.textContent = 'Pages: ';
+        const bookAuthor = document.createElement('span');
+        bookAuthor.classList.add('bold');
+        bookAuthor.textContent = library[i].author;
+        bookAuthorField.appendChild(bookAuthor);
 
-      const bookPages = document.createElement('span');
-      bookPages.classList.add('bold');
-      bookPages.textContent = library[i].pages.toString();
-      bookPagesField.appendChild(bookPages);
+        const bookPagesField = document.createElement('span');
+        bookPagesField.textContent = 'Pages: ';
 
-      const bookSeparator = document.createElement('hr');
+        const bookPages = document.createElement('span');
+        bookPages.classList.add('bold');
+        bookPages.textContent = library[i].pages.toString();
+        bookPagesField.appendChild(bookPages);
 
-      const bookIsRead = document.createElement('span');
-      bookIsRead.classList.add('italic');
-      bookIsRead.style.color = library[i].isRead ? 'lime' : 'yellow';
-      bookIsRead.textContent = `You${
-        library[i].isRead ? "'ve" : " haven't"
-      } read this book ${library[i].isRead ? 'already' : 'yet'}`;
+        const bookSeparator = document.createElement('hr');
 
-      const markReadBtn = document.createElement('button');
-      markReadBtn.textContent = `${library[i].isRead ? 'Not' : 'Is'} read`;
-      markReadBtn.addEventListener('click', () => {
-        library[i].isRead = !library[i].isRead;
-        populateDOM();
-      });
+        const bookIsRead = document.createElement('span');
+        bookIsRead.classList.add('italic');
+        bookIsRead.style.color = library[i].isRead ? 'lime' : 'yellow';
+        bookIsRead.textContent = `You${
+          library[i].isRead ? "'ve" : " haven't"
+        } read this book ${library[i].isRead ? 'already' : 'yet'}`;
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.addEventListener('click', () => {
-        library.splice(i, 1);
-        populateDOM();
-      });
+        const markReadBtn = document.createElement('button');
+        markReadBtn.textContent = `${library[i].isRead ? 'Not' : 'Is'} read`;
+        markReadBtn.addEventListener('click', () => {
+          library[i].isRead = !library[i].isRead;
+          Book.updateInLibrary(i, library[i]);
+          populateDOM();
+        });
 
-      const bookControls = document.createElement('span');
-      bookControls.classList.add('controls');
-      bookControls.append(markReadBtn, deleteBtn);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', () => {
+          Book.deleteFromLibrary(i);
+          populateDOM();
+        });
 
-      bookElement.append(
-        bookTitle,
-        bookAuthorField,
-        bookPagesField,
-        bookSeparator,
-        bookIsRead,
-        bookControls
-      );
+        const bookControls = document.createElement('span');
+        bookControls.classList.add('controls');
+        bookControls.append(markReadBtn, deleteBtn);
 
-      libraryElement?.appendChild(bookElement);
+        bookElement.append(
+          bookTitle,
+          bookAuthorField,
+          bookPagesField,
+          bookSeparator,
+          bookIsRead,
+          bookControls
+        );
+
+        libraryElement?.appendChild(bookElement);
+      }
+    } else {
+      const para = document.createElement('p');
+      para.textContent = 'There are no books yet...';
+      document.body.appendChild(para);
     }
-  } else {
-    const para = document.createElement('p');
-    para.textContent = 'There are no books yet...';
-    document.body.appendChild(para);
   }
-}
 
-// #region - Overwrite weird behaviour for HTML Dialog Element
+  const addBtn = /** @type {HTMLButtonElement} */ (
+    document.querySelector('button')
+  );
+  const dialog = /** @type {HTMLDialogElement} */ (
+    document.querySelector('dialog')
+  );
+  const form = /** @type {HTMLFormElement} */ (document.querySelector('form'));
 
-// Prevent Enter key from closing Dialog before Form validation
-form?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    if (!form.checkValidity()) form.reportValidity();
-    else form.dispatchEvent(new Event('submit'));
-  }
-});
+  addBtn.addEventListener('click', () => dialog.showModal());
 
-// Prevent Space key on Checkbox from closing Dialog
-/** @type {HTMLInputElement | null} */
-const checkbox = document.querySelector('[type="checkbox"]');
-checkbox?.addEventListener('keydown', (e) => {
-  if (e.key === ' ') {
-    e.preventDefault();
-    checkbox.checked = !checkbox.checked;
-  }
-});
+  dialog.addEventListener('click', (e) => {
+    const rect = dialog.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      dialog.close();
+    }
+  });
 
-// Prevent Space key on Submit Button from closing Dialog before Form validation
-/** @type {HTMLButtonElement | null} */
-const submitBtn = document.querySelector('[type="submit"]');
-submitBtn?.addEventListener('keydown', (e) => {
-  if (!form) return;
-  if (e.key === ' ') {
-    e.preventDefault();
-    if (!form.checkValidity()) form.reportValidity();
-    else form.dispatchEvent(new Event('submit'));
-  }
-});
+  form.addEventListener('submit', () => {
+    const [title, author, pages, isRead] = form.querySelectorAll('input');
+    const book = new Book(
+      title.value,
+      author.value,
+      +pages.value,
+      isRead.checked
+    );
 
-// #endregion
+    Book.addToLibrary(book);
+    populateDOM();
+    dialog.close();
 
-populateDOM();
+    title.value = '';
+    author.value = '';
+    pages.value = '';
+    isRead.checked = false;
+  });
+
+  // #region - Overwrite weird behaviour for HTML Dialog Element
+
+  // Prevent Enter key from closing Dialog before Form validation
+  form.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!form.checkValidity()) form.reportValidity();
+      else form.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  // Prevent Space key on Checkbox from closing Dialog
+
+  const checkbox = /** @type {HTMLInputElement} */ (
+    document.querySelector('[type="checkbox"]')
+  );
+
+  checkbox.addEventListener('keydown', (e) => {
+    if (e.key === ' ') {
+      e.preventDefault();
+      checkbox.checked = !checkbox.checked;
+    }
+  });
+
+  // Prevent Space key on Submit Button from closing Dialog before Form validation
+
+  const submitBtn = /** @type {HTMLButtonElement} */ (
+    document.querySelector('[type="submit"]')
+  );
+
+  submitBtn.addEventListener('keydown', (e) => {
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (!form.checkValidity()) form.reportValidity();
+      else form.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  // #endregion
+
+  populateDOM();
+})();
